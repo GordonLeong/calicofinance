@@ -1,8 +1,7 @@
 ### Import libraries###
 from firebase_admin import credentials, firestore
 import firebase_admin
-import pyrebase4 as pyrebase
-
+import pyrebase as pyrebase
 import yfinance as yf
 from datetime import datetime
 import os
