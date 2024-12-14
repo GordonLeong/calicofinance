@@ -70,10 +70,9 @@ requests-toolbelt==0.10.1
 rich==13.9.4
 rpds-py==0.22.3
 rsa==4.9
-setuptools>=65.5.1
 six==1.17.0
 smmap==5.0.1
-soupsieve==2.61
+soupsieve==2.6
 streamlit==1.41.1
 tenacity==9.0.0
 toml==0.10.2
