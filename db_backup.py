@@ -4,25 +4,10 @@ import pyrebase
 from firebase_admin import credentials, firestore
 import yfinance as yf
 from datetime import datetime
-import os
-from dotenv import load_dotenv
-
 
 
 ## user authentication ##
-load_dotenv()
 
-
-firebaseConfig = {
-    'apiKey': os.getenv('FIREBASE_API_KEY'),
-    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
-    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
-    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
-    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-    'appId': os.getenv('FIREBASE_APP_ID'),
-    'databaseURL': os.getenv('FIREBASE_DATABASE_URL'),
-    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID')
-}
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
@@ -163,6 +148,11 @@ def bulk_upload_transactions(df):
         ticker_ref.set({'avg_cost': updates['avg_cost'],'qty_held':updates['qty_held']}, merge = True)
 
 
+
+
+
+
+
 ####
 def get_all_transactions():
     equities_ref = db.collection('equities')
@@ -189,10 +179,8 @@ def get_ticker_list():
 
 def update_market_prices(ticker_list):
     try:
-        total_portfolio_value = 0 # initialize
-
         for ticker in ticker_list:
-            
+            print(ticker_list)
             ticker_data = yf.Ticker(ticker)
             latest_data = ticker_data.history(period="1d")
             if not latest_data.empty:
@@ -200,65 +188,35 @@ def update_market_prices(ticker_list):
                 current_date = datetime.now().date().strftime("%Y-%m-%d")
                 update_date = firestore.SERVER_TIMESTAMP
                 equity_ref = db.collection('equities').document(ticker)
-                equity_data = equity_ref.get().to_dict()
+                equity_ref.update({
+                    'market_price': latest_price,
+                    'updated_at': update_date
+                })
 
-                if equity_data:
-                    qty = equity_ref.get().to_dict().get('qty_held')
-                    if qty is not None:
-                        market_value = latest_price * qty
-                        equity_ref.update({
-                            'market_value': market_value,
-                            'market_price': latest_price,
-                            'updated_at': update_date
-                        })
+                qty = equity_ref.get().to_dict().get('qty_held')
+                if qty is not None:
+                    market_value = latest_price * qty
+                    equity_ref.update({
+                        'market_value': market_value
+                    })
 
-                        total_portfolio_value += market_value
+        portfolio_ref = db.collection('portfolio').document('update_date')
+        portfolio_ref.set({'portfolio_update_date': current_date}, merge = True)
 
-        calculate_and_update_concentration(ticker_list, total_portfolio_value)
-        update_total_portfolio_value(total_portfolio_value, current_date)
 
         return True
-    
+
+
+
     except Exception as e:
         print(f"Error updating market prices: {str(e)}")
         return False
 
-def calculate_and_update_concentration(ticker_list, total_portfolio_value):
-    for ticker in ticker_list:
-        equity_ref = db.collection('equities').document(ticker)
-        equity_data = equity_ref.get().to_dict()
-
-        if equity_data:
-            market_value = equity_data.get('market_value')
-            if market_value is not None and total_portfolio_value > 0:
-                concentration_percentage = (market_value / total_portfolio_value) * 100
-                equity_ref.update({
-                    'concentration': concentration_percentage
-                })
-
-def update_total_portfolio_value(total_portfolio_value, current_date):
-    portfolio_ref = db.collection('portfolio').document('portfolio_stats')
-    portfolio_ref.set({'portfolio_update_date': current_date, 'total_portfolio_value': total_portfolio_value}, merge=True)
-
-
 def get_portfolio_update_date():
-     portfolio_ref = db.collection('portfolio').document('portfolio_stats')
+     portfolio_ref = db.collection('portfolio').document('update_date')
      portfolio_data = portfolio_ref.get().to_dict()
-     if portfolio_data:
-        portfolio_update_date = portfolio_data.get('portfolio_update_date')
-        return portfolio_update_date
-     else:
-         return "No data available"
-
-def get_total_portfolio_value():
-    portfolio_ref = db.collection('portfolio').document('portfolio_stats')
-    portfolio_data = portfolio_ref.get().to_dict()
-    if portfolio_data:
-        total_portfolio_value = portfolio_data.get('total_portfolio_value')
-        return total_portfolio_value
-    else:
-        return "No data available"
-
+     portfolio_update_date = portfolio_data.get('portfolio_update_date')
+     return portfolio_update_date
 
 def get_equity_data(ticker):
     try:
@@ -299,30 +257,6 @@ def get_transactions_for_tickers(ticker_list, start_date, end_date):
 
     return all_transactions
 
-def update_cost_values():
-    try:
-        equities_ref = db.collection('equities')
-        equities = equities_ref.stream()
-        total_cost_value = 0 # initialise
-
-        for equity in equities:
-            equity_data = equity.to_dict()
-            avg_cost = equity_data.get('avg_cost')
-            qty_held = equity_data.get("qty_held")
-
-            if avg_cost is not None and qty_held is not None:
-                cost_value = avg_cost * qty_held
-                equity_ref = db.collection('equities').document(equity.id)
-                equity_ref.update({'cost_value': cost_value})
-
-        portfolio_ref = db.collection('portfolio').document('portfolio_stats')
-        portfolio_ref.set({'total_cost_value': total_cost_value}, merge = True)
-
-        return True
-    
-    except Exception as e:
-        print(f"Error updating cost values: {str(e)}")
-        return False
 
 
 
