@@ -1,0 +1,122 @@
+# import streamlit as st
+# import numpy as np
+# import pandas as pd
+# import yfinance as yf
+# import plotly.express as px
+# import firebase_admin
+# from firebase_admin import credentials, db
+# from google.cloud import firestore
+# import pyrebase
+
+# firebaseConfig= {
+#   'apiKey': "AIzaSyDRw_gTfwFpPzJLv0QDXS7Y7kXwuA5fdY8",
+#   'authDomain': "finance-app-69eb2.firebaseapp.com",
+#   'projectId': "finance-app-69eb2",
+#   'storageBucket': "finance-app-69eb2.appspot.com",
+#   'messagingSenderId': "522135228658",
+#   'appId': "1:522135228658:web:d7c4353d2696424b66c06b",
+#   'databaseURL':"https://dummy.firebaseio.com",
+#   'measurementId':"G-YEMSC6ZES7"
+#   }
+
+
+# firebase = pyrebase.initialize_app(firebaseConfig)
+# auth = firebase.auth()
+# email = input("enter email")
+# password = input("enter password")
+# try:
+#     auth.sign_in_with_email_and_password(email,password)
+#     print("signed in")
+# except:
+#     print("Invalid, try again")
+#  ###############################################################
+
+
+# # db = firestore.Client.from_service_account_json("/Users/taeyeonist/Documents/Coding Projects/finance-app Project Kaizen/firestore-key.json")
+
+# # st.title('Stock Data')
+# # ticker_symbol = st.text_input("Enter a ticker symbol")
+# # selected_period = st.selectbox("Select period", ["1d","5d","1mo","3mo","6mo","1y"])
+# # period_names = { 
+# #      "1d": "1 day",
+# #      "5d": "5 days",
+# #      "1mo":"1 month",
+# #      "3mo": "3 months",
+# #      "6mo": "6 months",
+# #      "1y": "1 year"
+# # }
+# # formatted_Df = pd.DataFrame()
+
+# # if st.button("Fetch Data"):
+# #     try:
+# #         tickerData = yf.Ticker(ticker_symbol)
+# #         ticker_Df = tickerData.history(period=selected_period)
+
+# #         if not ticker_Df.empty:
+# #                 modified_Df = ticker_Df.reset_index()
+# #                 modified_Df['Date']= modified_Df['Date'].dt.strftime('%d %b %Y')
+# #                 modified_Df.rename(columns={'Close': 'Price (USD)'}, inplace = True)
+# #                 modified_Df['Price (USD)'] = modified_Df['Price (USD)'].apply(lambda x: f"${x:.2f}")
+# #                 formatted_Df = modified_Df[['Date','Price (USD)']]
+# #                 st.table(formatted_Df)
+# #         else:
+# #              st.warning("Invalid Symbol, try again")
+
+# #     except Exception as e:
+# #          st.error(f"An error occurred: {e}")
+
+
+# # if st.button ("Generate Chart"):
+     
+# #      try:
+# #         tickerData = yf.Ticker(ticker_symbol)
+# #         ticker_Df = tickerData.history(period=selected_period)
+# #         full_period_name = period_names.get(selected_period, selected_period)
+# #         title = f'{ticker_symbol} Price History for Last {full_period_name}'
+# #         if not ticker_Df.empty:
+# #                 modified_Df = ticker_Df.reset_index()
+# #                 modified_Df['Date']= modified_Df['Date'].dt.strftime('%d %b %Y')
+# #                 modified_Df.rename(columns={'Close': 'Price (USD)'}, inplace = True)
+# #                 modified_Df['Price (USD)'] = modified_Df['Price (USD)'].apply(lambda x: f"${x:.2f}")
+# #                 formatted_Df = modified_Df[['Date','Price (USD)']]
+# #                 fig = px.line(formatted_Df, x = 'Date', y= 'Price (USD)', title = title)
+# #                 fig.update_xaxes(tickangle=45)
+
+# #                 st.plotly_chart(fig)
+# #         else:
+# #             st.warning("Error")
+# #      except Exception as e:
+# #          st.error(f"An error occurred: {e}")
+               
+
+
+# # new_transaction_data ={
+# #      'cost_price': 100,
+# #      'date': '20230303',
+# #      'qty': 20,
+# #      'ticker': 'MSFT',
+# #      'txn_type': 'buy',
+# #      'cost_value': 2000
+
+# # }
+
+# # # try:
+# # #      doc_ref, doc_id = db.collection('pf-txns').add(new_transaction_data)
+# # #      st.success("Transaction added successfully. Document ID: {}".format(doc_id))
+# # # except Exception as e:
+# # #     st.error("An error occurred: {}".format(e))
+    
+
+
+# db=firestore.client()
+# #add documents with auto IDs
+# data = {
+#     'name':'Jane Doe',
+#     'age':34,
+#     'employed': False
+# }
+# db.collection('persons').document('janedoe').set({'address':'London'}, merge = True) 
+# # if no collection it will create one
+# # merge with any existing named document
+# db.collection('persons').document().set(data)
+# db.collection('people').add(data)

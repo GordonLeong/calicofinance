@@ -1,0 +1,10 @@
+{
+    "folders": [
+        {
+            "path": "./"
+        }
+    ],
+    "settings": {
+        "python.defaultInterpreterPath": "/Users/taeyeonist/Documents/Coding Projects/finance-app/venv/bin/python3"
+    }
+}
