@@ -5,7 +5,8 @@ import yfinance as yf
 from datetime import datetime
 import os
 from dotenv import load_dotenv
-
+import streamlit as st
+import json
 
 
 ## user authentication ##
@@ -16,8 +17,15 @@ load_dotenv()
 try:
     firebase_admin.get_app()
 except ValueError:
-    cred = credentials.Certificate(st.secrets["firebase"])
-    firebase_admin.initialize_app(cred)
+    try:
+        firebase_credentials = dict(st.secrets["firebase"])
+        cred = credentials.Certificate(firebase_credentials)
+        firebase_admin.initialize_app(cred)
+    except (ValueError, KeyError) as e:
+        st.error("failed to initialise Firebase. Check credentials")
+        print(f"Detailed error: {str(e)}")
+        
+        raise
 
 
 db = firestore.client()

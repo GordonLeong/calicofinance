@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .DS_Store
 financeapp_firestorekey.json
+.streamlit/secrets.toml
